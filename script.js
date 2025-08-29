@@ -139,40 +139,38 @@ async function generateResources(career, stepTitle, stepDescription) {
     Step: ${stepTitle}
     Description: ${stepDescription}
     
-    IMPORTANT: Only suggest resources that actually exist. For YouTube videos, suggest search terms instead of specific URLs that might not exist.
+    CRITICAL: For YouTube videos, you MUST provide REAL, EXISTING YouTube URLs or playlists that actually exist. 
+    Use only well-known educational channels like:
+    - freeCodeCamp: https://www.youtube.com/c/Freecodecamp
+    - Programming with Mosh: https://www.youtube.com/c/programmingwithmosh
+    - The Net Ninja: https://www.youtube.com/c/TheNetNinja
+    - Traversy Media: https://www.youtube.com/c/TraversyMedia
+    - Academind: https://www.youtube.com/c/Academind
+    - Code with Harry: https://www.youtube.com/c/CodeWithHarry
     
     Provide resources in these categories:
-    1. YouTube Search Terms (5-7 search queries that will find relevant videos)
-    2. Documentation/Articles (4-5 items with real websites like MDN, official docs)
-    3. Project Ideas (3-4 practical projects with descriptions - no URLs needed)
-    4. Practice Platforms (3-4 real coding/learning platforms like freeCodeCamp, Codecademy)
+    1. YouTube Videos (3-5 items with REAL YouTube video/playlist URLs)
+    2. Documentation/Articles (3-4 items with real websites like MDN, official docs)
+    3. Project Ideas (3-4 practical projects with descriptions)
+    4. Practice Platforms (3-4 real coding/learning platforms)
     
     Format as JSON object with keys: videos, documents, projects, practice
-    For videos: use title, description, searchQuery (instead of url), difficulty, duration
-    For others: title, description, url (only if it's a real site), difficulty, duration
+    Each video MUST have: title, description, url (REAL YouTube URL), difficulty, duration
     
-    Example for video entry:
+    Example:
     {
-      "title": "JavaScript Basics Tutorial",
-      "description": "Learn JavaScript fundamentals",
-      "searchQuery": "javascript tutorial for beginners 2024",
+      "title": "JavaScript Full Course",
+      "description": "Complete JavaScript tutorial by freeCodeCamp",
+      "url": "https://www.youtube.com/watch?v=PkZNo7MFNFg",
       "difficulty": "beginner",
-      "duration": "2-4 hours"
+      "duration": "3.5 hours"
     }`;
 
     try {
         const response = await callGeminiAPI(prompt);
         const jsonMatch = response.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-            const resources = JSON.parse(jsonMatch[0]);
-            // Convert search queries to YouTube search URLs
-            if (resources.videos) {
-                resources.videos = resources.videos.map(video => ({
-                    ...video,
-                    url: `https://youtube.com/results?search_query=${encodeURIComponent(video.searchQuery || video.title)}`
-                }));
-            }
-            return resources;
+            return JSON.parse(jsonMatch[0]);
         } else {
             throw new Error('Could not parse JSON from response');
         }
@@ -284,72 +282,100 @@ function getDefaultResources(career, stepTitle) {
         "HTML & CSS Fundamentals": {
             videos: [
                 {
-                    title: "HTML & CSS Full Course Tutorial",
-                    description: "Complete HTML and CSS tutorial from basics to advanced",
-                    url: "https://youtube.com/results?search_query=html+css+full+course+tutorial+2024",
+                    title: "HTML Full Course - Build a Website Tutorial",
+                    description: "Complete HTML tutorial by freeCodeCamp",
+                    url: "https://www.youtube.com/watch?v=pQN-pnXPaVg",
                     difficulty: "beginner",
-                    duration: "4-8 hours"
+                    duration: "4 hours"
                 },
                 {
-                    title: "CSS Flexbox and Grid Tutorial",
-                    description: "Master modern CSS layout techniques",
-                    url: "https://youtube.com/results?search_query=css+flexbox+grid+tutorial+responsive",
+                    title: "CSS Tutorial – Full Course for Beginners",
+                    description: "Complete CSS course by freeCodeCamp",
+                    url: "https://www.youtube.com/watch?v=OXGznpKZ_sA",
+                    difficulty: "beginner",
+                    duration: "11 hours"
+                },
+                {
+                    title: "CSS Flexbox Course by The Net Ninja",
+                    description: "Complete flexbox tutorial series",
+                    url: "https://www.youtube.com/playlist?list=PL4cUxeGkcC9i3FXJSUfmsNOx8E7u6UuhG",
                     difficulty: "intermediate",
-                    duration: "2-3 hours"
+                    duration: "3 hours"
                 }
             ]
         },
         "JavaScript Basics": {
             videos: [
                 {
-                    title: "JavaScript Tutorial for Beginners",
-                    description: "Complete JavaScript course covering fundamentals",
-                    url: "https://youtube.com/results?search_query=javascript+tutorial+beginners+2024+full+course",
+                    title: "JavaScript Tutorial for Beginners: Learn JavaScript in 1 Hour",
+                    description: "JavaScript basics by Programming with Mosh",
+                    url: "https://www.youtube.com/watch?v=W6NZfCO5SIk",
                     difficulty: "beginner",
-                    duration: "6-10 hours"
+                    duration: "1 hour"
                 },
                 {
-                    title: "Modern JavaScript ES6+ Features",
-                    description: "Learn modern JavaScript features and syntax",
-                    url: "https://youtube.com/results?search_query=javascript+es6+modern+features+tutorial",
+                    title: "Learn JavaScript - Full Course for Beginners",
+                    description: "Complete JavaScript course by freeCodeCamp",
+                    url: "https://www.youtube.com/watch?v=PkZNo7MFNFg",
+                    difficulty: "beginner",
+                    duration: "3.5 hours"
+                },
+                {
+                    title: "JavaScript ES6 Tutorial by The Net Ninja",
+                    description: "Modern JavaScript features playlist",
+                    url: "https://www.youtube.com/playlist?list=PL4cUxeGkcC9gKfw25slm4CUDUcM_sXdml",
                     difficulty: "intermediate",
-                    duration: "3-4 hours"
+                    duration: "4 hours"
                 }
             ]
         },
         "Frontend Framework - React": {
             videos: [
                 {
-                    title: "React JS Full Course for Beginners",
-                    description: "Complete React tutorial from scratch",
-                    url: "https://youtube.com/results?search_query=react+js+full+course+beginners+2024",
+                    title: "React Course - Beginner's Tutorial for React JavaScript Library",
+                    description: "Complete React tutorial by freeCodeCamp",
+                    url: "https://www.youtube.com/watch?v=bMknfKXIFA8",
                     difficulty: "intermediate",
-                    duration: "8-12 hours"
+                    duration: "5 hours"
                 },
                 {
-                    title: "React Hooks Tutorial",
-                    description: "Master React Hooks with practical examples",
-                    url: "https://youtube.com/results?search_query=react+hooks+tutorial+useState+useEffect",
+                    title: "Full React Tutorial by The Net Ninja",
+                    description: "Complete React series with modern hooks",
+                    url: "https://www.youtube.com/playlist?list=PL4cUxeGkcC9gZD-Tvwfod2gaISzfRiP9d",
                     difficulty: "intermediate",
-                    duration: "2-3 hours"
+                    duration: "10 hours"
+                },
+                {
+                    title: "React Hooks Tutorial by Programming with Mosh",
+                    description: "Modern React with hooks explained",
+                    url: "https://www.youtube.com/watch?v=6RhOzQciVwI",
+                    difficulty: "intermediate",
+                    duration: "2 hours"
                 }
             ]
         },
         "Python Programming Fundamentals": {
             videos: [
                 {
-                    title: "Python for Beginners - Full Course",
-                    description: "Complete Python tutorial for beginners",
-                    url: "https://youtube.com/results?search_query=python+programming+full+course+beginners+2024",
+                    title: "Python Tutorial - Python Full Course for Beginners",
+                    description: "Complete Python course by Programming with Mosh",
+                    url: "https://www.youtube.com/watch?v=_uQrJ0TkZlc",
                     difficulty: "beginner",
-                    duration: "8-12 hours"
+                    duration: "6 hours"
                 },
                 {
-                    title: "Python Object Oriented Programming",
-                    description: "Learn OOP concepts in Python",
-                    url: "https://youtube.com/results?search_query=python+object+oriented+programming+oop+tutorial",
+                    title: "Learn Python - Full Course for Beginners",
+                    description: "Python tutorial by freeCodeCamp",
+                    url: "https://www.youtube.com/watch?v=rfscVS0vtbw",
+                    difficulty: "beginner",
+                    duration: "4.5 hours"
+                },
+                {
+                    title: "Python OOP Tutorial by Corey Schafer",
+                    description: "Object-oriented programming in Python",
+                    url: "https://www.youtube.com/playlist?list=PL-osiE80TeTsqhIuOqKhwlXsIBIdSeYtc",
                     difficulty: "intermediate",
-                    duration: "4-6 hours"
+                    duration: "6 hours"
                 }
             ]
         }
