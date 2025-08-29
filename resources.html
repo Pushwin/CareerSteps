@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Path Generator - Resources</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <button id="backToStepsBtn" class="btn-secondary">← Back to Steps</button>
+                <h1 id="resourceTitle">Learning Resources</h1>
+                <button id="logoutBtn" class="btn-secondary">Logout</button>
+            </div>
+        </header>
+
+        <div class="resources-container">
+            <div id="loadingResources" class="loading">
+                <div class="spinner"></div>
+                <p>Generating detailed resources...</p>
+            </div>
+
+            <div id="resourcesContent" class="resources-content" style="display: none;">
+                <div class="resource-header">
+                    <h2 id="stepTitle"></h2>
+                    <p id="stepDescription"></p>
+                </div>
+
+                <div class="resource-tabs">
+                    <button class="tab-btn active" data-tab="videos">📹 Videos</button>
+                    <button class="tab-btn" data-tab="documents">📚 Documents</button>
+                    <button class="tab-btn" data-tab="projects">🛠️ Projects</button>
+                    <button class="tab-btn" data-tab="practice">💻 Practice</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="videosTab" class="tab-panel active">
+                        <h3>YouTube Playlists & Videos</h3>
+                        <div id="videosList" class="resources-list">
+                            <!-- Video resources will be generated here -->
+                        </div>
+                    </div>
+
+                    <div id="documentsTab" class="tab-panel">
+                        <h3>Documentation & Articles</h3>
+                        <div id="documentsList" class="resources-list">
+                            <!-- Document resources will be generated here -->
+                        </div>
+                    </div>
+
+                    <div id="projectsTab" class="tab-panel">
+                        <h3>Project Ideas</h3>
+                        <div id="projectsList" class="resources-list">
+                            <!-- Project ideas will be generated here -->
+                        </div>
+                    </div>
+
+                    <div id="practiceTab" class="tab-panel">
+                        <h3>Practice Platforms</h3>
+                        <div id="practiceList" class="resources-list">
+                            <!-- Practice resources will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="resourcesMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize resources page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initResourcesPage();
+        });
+    </script>
+</body>
+</html>

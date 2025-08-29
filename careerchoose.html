@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Path Generator - Choose Career</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Choose Your Career Path</h1>
+            <div class="user-info">
+                <span id="userGreeting"></span>
+                <button id="logoutBtn" class="btn-secondary">Logout</button>
+            </div>
+        </header>
+
+        <div class="career-selection">
+            <h2>Select a career path to get started:</h2>
+            
+            <div class="career-grid">
+                <div class="career-card" data-career="web-development">
+                    <div class="career-icon">🌐</div>
+                    <h3>Web Development</h3>
+                    <p>Learn full-stack web development including HTML, CSS, JavaScript, React, Node.js, and databases.</p>
+                    <div class="career-stats">
+                        <span>⏱️ 6-12 months</span>
+                        <span>💰 $50k-$120k</span>
+                    </div>
+                </div>
+
+                <div class="career-card" data-career="data-science">
+                    <div class="career-icon">📊</div>
+                    <h3>Data Science</h3>
+                    <p>Master data analysis, machine learning, Python, statistics, and data visualization tools.</p>
+                    <div class="career-stats">
+                        <span>⏱️ 8-15 months</span>
+                        <span>💰 $60k-$140k</span>
+                    </div>
+                </div>
+
+                <div class="career-card" data-career="mobile-development">
+                    <div class="career-icon">📱</div>
+                    <h3>Mobile Development</h3>
+                    <p>Build iOS and Android apps using React Native, Flutter, Swift, or Kotlin.</p>
+                    <div class="career-stats">
+                        <span>⏱️ 6-10 months</span>
+                        <span>💰 $55k-$130k</span>
+                    </div>
+                </div>
+
+                <div class="career-card" data-career="cybersecurity">
+                    <div class="career-icon">🔒</div>
+                    <h3>Cybersecurity</h3>
+                    <p>Learn ethical hacking, network security, risk assessment, and security frameworks.</p>
+                    <div class="career-stats">
+                        <span>⏱️ 9-18 months</span>
+                        <span>💰 $65k-$150k</span>
+                    </div>
+                </div>
+
+                <div class="career-card" data-career="ui-ux-design">
+                    <div class="career-icon">🎨</div>
+                    <h3>UI/UX Design</h3>
+                    <p>Design user interfaces and experiences using Figma, Adobe Creative Suite, and prototyping tools.</p>
+                    <div class="career-stats">
+                        <span>⏱️ 4-8 months</span>
+                        <span>💰 $45k-$110k</span>
+                    </div>
+                </div>
+
+                <div class="career-card" data-career="cloud-computing">
+                    <div class="career-icon">☁️</div>
+                    <h3>Cloud Computing</h3>
+                    <p>Master AWS, Azure, Google Cloud, DevOps, containerization, and cloud architecture.</p>
+                    <div class="career-stats">
+                        <span>⏱️ 7-12 months</span>
+                        <span>💰 $70k-$160k</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="careerMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize career choose page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initCareerChoosePage();
+        });
+    </script>
+</body>
+</html>
