@@ -139,22 +139,40 @@ async function generateResources(career, stepTitle, stepDescription) {
     Step: ${stepTitle}
     Description: ${stepDescription}
     
+    IMPORTANT: Only suggest resources that actually exist. For YouTube videos, suggest search terms instead of specific URLs that might not exist.
+    
     Provide resources in these categories:
-    1. YouTube Videos/Playlists (5-7 items with real channel names and realistic titles)
-    2. Documentation/Articles (4-5 items with real websites and article titles)
-    3. Project Ideas (3-4 practical projects with descriptions)
-    4. Practice Platforms (3-4 coding/learning platforms)
+    1. YouTube Search Terms (5-7 search queries that will find relevant videos)
+    2. Documentation/Articles (4-5 items with real websites like MDN, official docs)
+    3. Project Ideas (3-4 practical projects with descriptions - no URLs needed)
+    4. Practice Platforms (3-4 real coding/learning platforms like freeCodeCamp, Codecademy)
     
     Format as JSON object with keys: videos, documents, projects, practice
-    Each item should have: title, description, url (realistic), difficulty, duration
+    For videos: use title, description, searchQuery (instead of url), difficulty, duration
+    For others: title, description, url (only if it's a real site), difficulty, duration
     
-    Make URLs realistic but don't use actual copyrighted content.`;
+    Example for video entry:
+    {
+      "title": "JavaScript Basics Tutorial",
+      "description": "Learn JavaScript fundamentals",
+      "searchQuery": "javascript tutorial for beginners 2024",
+      "difficulty": "beginner",
+      "duration": "2-4 hours"
+    }`;
 
     try {
         const response = await callGeminiAPI(prompt);
         const jsonMatch = response.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-            return JSON.parse(jsonMatch[0]);
+            const resources = JSON.parse(jsonMatch[0]);
+            // Convert search queries to YouTube search URLs
+            if (resources.videos) {
+                resources.videos = resources.videos.map(video => ({
+                    ...video,
+                    url: `https://youtube.com/results?search_query=${encodeURIComponent(video.searchQuery || video.title)}`
+                }));
+            }
+            return resources;
         } else {
             throw new Error('Could not parse JSON from response');
         }
@@ -266,18 +284,18 @@ function getDefaultResources(career, stepTitle) {
         "HTML & CSS Fundamentals": {
             videos: [
                 {
-                    title: "HTML & CSS Full Course - Beginner to Pro",
+                    title: "HTML & CSS Full Course Tutorial",
                     description: "Complete HTML and CSS tutorial from basics to advanced",
-                    url: "https://youtube.com/playlist?list=PL0Zuz27SZ-6Mx9fd9elt80G1bPcySmWit",
+                    url: "https://youtube.com/results?search_query=html+css+full+course+tutorial+2024",
                     difficulty: "beginner",
-                    duration: "6 hours"
+                    duration: "4-8 hours"
                 },
                 {
                     title: "CSS Flexbox and Grid Tutorial",
                     description: "Master modern CSS layout techniques",
-                    url: "https://youtube.com/playlist?list=PL4cUxeGkcC9i3FXJSUfmsNOx8E7u6UuhG",
+                    url: "https://youtube.com/results?search_query=css+flexbox+grid+tutorial+responsive",
                     difficulty: "intermediate",
-                    duration: "3 hours"
+                    duration: "2-3 hours"
                 }
             ]
         },
@@ -286,16 +304,16 @@ function getDefaultResources(career, stepTitle) {
                 {
                     title: "JavaScript Tutorial for Beginners",
                     description: "Complete JavaScript course covering fundamentals",
-                    url: "https://youtube.com/playlist?list=PL0Zuz27SZ-6Oi6xNXie2gXMyNHjYgb9FQ",
+                    url: "https://youtube.com/results?search_query=javascript+tutorial+beginners+2024+full+course",
                     difficulty: "beginner",
-                    duration: "8 hours"
+                    duration: "6-10 hours"
                 },
                 {
-                    title: "Modern JavaScript ES6+ Tutorial",
+                    title: "Modern JavaScript ES6+ Features",
                     description: "Learn modern JavaScript features and syntax",
-                    url: "https://youtube.com/playlist?list=PL0Zuz27SZ-6P4dQUsoDatjEGpmBpcOW8V",
+                    url: "https://youtube.com/results?search_query=javascript+es6+modern+features+tutorial",
                     difficulty: "intermediate",
-                    duration: "4 hours"
+                    duration: "3-4 hours"
                 }
             ]
         },
@@ -304,16 +322,16 @@ function getDefaultResources(career, stepTitle) {
                 {
                     title: "React JS Full Course for Beginners",
                     description: "Complete React tutorial from scratch",
-                    url: "https://youtube.com/playlist?list=PL0Zuz27SZ-6OlAwitnFUubtE93DO-l0vi",
+                    url: "https://youtube.com/results?search_query=react+js+full+course+beginners+2024",
                     difficulty: "intermediate",
-                    duration: "10 hours"
+                    duration: "8-12 hours"
                 },
                 {
                     title: "React Hooks Tutorial",
                     description: "Master React Hooks with practical examples",
-                    url: "https://youtube.com/playlist?list=PL4cUxeGkcC9hNokByJilPg5g9m2APUePI",
+                    url: "https://youtube.com/results?search_query=react+hooks+tutorial+useState+useEffect",
                     difficulty: "intermediate",
-                    duration: "3 hours"
+                    duration: "2-3 hours"
                 }
             ]
         },
@@ -322,16 +340,16 @@ function getDefaultResources(career, stepTitle) {
                 {
                     title: "Python for Beginners - Full Course",
                     description: "Complete Python tutorial for beginners",
-                    url: "https://youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU",
+                    url: "https://youtube.com/results?search_query=python+programming+full+course+beginners+2024",
                     difficulty: "beginner",
-                    duration: "12 hours"
+                    duration: "8-12 hours"
                 },
                 {
                     title: "Python Object Oriented Programming",
                     description: "Learn OOP concepts in Python",
-                    url: "https://youtube.com/playlist?list=PL-osiE80TeTsqhIuOqKhwlXsIBIdSeYtc",
+                    url: "https://youtube.com/results?search_query=python+object+oriented+programming+oop+tutorial",
                     difficulty: "intermediate",
-                    duration: "6 hours"
+                    duration: "4-6 hours"
                 }
             ]
         }
