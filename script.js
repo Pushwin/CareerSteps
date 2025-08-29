@@ -66,6 +66,134 @@ function logout() {
     window.location.href = 'loginpageandsighup.html';
 }
 
+// YouTube link validation functions
+async function validateYouTubeLink(url) {
+    try {
+        // Extract video ID from YouTube URL
+        const videoId = extractVideoId(url);
+        if (!videoId) return false;
+        
+        // Use YouTube oEmbed API to check if video exists
+        const oEmbedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+        const response = await fetch(oEmbedUrl);
+        
+        return response.ok;
+    } catch (error) {
+        console.error('Error validating YouTube link:', error);
+        return false;
+    }
+}
+
+function extractVideoId(url) {
+    // Handle different YouTube URL formats
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+}
+
+async function findAlternativeVideo(topic, existingUrls = []) {
+    try {
+        // Use Gemini to suggest alternative video topics
+        const prompt = `Suggest 3 alternative search terms for finding YouTube videos about "${topic}" programming tutorial. 
+        Return as JSON array of search terms: ["term1", "term2", "term3"]`;
+        
+        const response = await callGeminiAPI(prompt);
+        const searchTerms = JSON.parse(response);
+        
+        // For demo purposes, return a curated list of verified educational videos
+        const verifiedVideos = getVerifiedVideoAlternatives(topic);
+        
+        // Return first available alternative not already used
+        for (const video of verifiedVideos) {
+            if (!existingUrls.includes(video.url)) {
+                const isValid = await validateYouTubeLink(video.url);
+                if (isValid) {
+                    return video;
+                }
+            }
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('Error finding alternative video:', error);
+        return null;
+    }
+}
+
+function getVerifiedVideoAlternatives(topic) {
+    const alternatives = {
+        'html': [
+            { url: 'https://www.youtube.com/watch?v=qz0aGYrrlhU', title: 'HTML Tutorial for Beginners', description: 'Learn HTML basics' },
+            { url: 'https://www.youtube.com/watch?v=UB1O30fR-EE', title: 'HTML Crash Course', description: 'Quick HTML tutorial' },
+            { url: 'https://www.youtube.com/watch?v=PlxWf493en4', title: 'HTML5 Tutorial', description: 'Modern HTML5 features' }
+        ],
+        'css': [
+            { url: 'https://www.youtube.com/watch?v=yfoY53QXEnI', title: 'CSS Crash Course', description: 'Learn CSS basics' },
+            { url: 'https://www.youtube.com/watch?v=1PnVor36_40', title: 'CSS Tutorial', description: 'Complete CSS guide' },
+            { url: 'https://www.youtube.com/watch?v=D-h8L5hgW-w', title: 'CSS Flexbox Tutorial', description: 'Master flexbox layout' }
+        ],
+        'javascript': [
+            { url: 'https://www.youtube.com/watch?v=hdI2bqOjy3c', title: 'JavaScript Crash Course', description: 'Learn JavaScript fast' },
+            { url: 'https://www.youtube.com/watch?v=jS4aFq5-91M', title: 'JavaScript Basics', description: 'JavaScript fundamentals' },
+            { url: 'https://www.youtube.com/watch?v=W6NZfCO5SIk', title: 'JavaScript in 1 Hour', description: 'Quick JavaScript tutorial' }
+        ],
+        'react': [
+            { url: 'https://www.youtube.com/watch?v=w7ejDZ8SWv8', title: 'React Crash Course', description: 'Learn React quickly' },
+            { url: 'https://www.youtube.com/watch?v=Ke90Tje7VS0', title: 'React Tutorial', description: 'React for beginners' },
+            { url: 'https://www.youtube.com/watch?v=SqcY0GlETPk', title: 'React Tutorial 2024', description: 'Modern React tutorial' }
+        ],
+        'python': [
+            { url: 'https://www.youtube.com/watch?v=kqtD5dpn9C8', title: 'Python for Beginners', description: 'Learn Python basics' },
+            { url: 'https://www.youtube.com/watch?v=t8pPdKYpowI', title: 'Python Crash Course', description: 'Quick Python tutorial' },
+            { url: 'https://www.youtube.com/watch?v=eWRfhZUzrAc', title: 'Python Tutorial', description: 'Complete Python guide' }
+        ]
+    };
+    
+    const key = topic.toLowerCase();
+    return alternatives[key] || alternatives['javascript']; // default fallback
+}
+
+async function validateAndReplaceInvalidLinks(resources) {
+    if (!resources.videos) return resources;
+    
+    const validatedVideos = [];
+    const usedUrls = [];
+    
+    for (const video of resources.videos) {
+        console.log(`Validating video: ${video.title}`);
+        const isValid = await validateYouTubeLink(video.url);
+        
+        if (isValid) {
+            validatedVideos.push(video);
+            usedUrls.push(video.url);
+        } else {
+            console.log(`Invalid link found, searching alternative for: ${video.title}`);
+            // Extract topic from title for alternative search
+            const topic = video.title.toLowerCase().includes('javascript') ? 'javascript' :
+                         video.title.toLowerCase().includes('html') ? 'html' :
+                         video.title.toLowerCase().includes('css') ? 'css' :
+                         video.title.toLowerCase().includes('react') ? 'react' :
+                         video.title.toLowerCase().includes('python') ? 'python' : 'javascript';
+            
+            const alternative = await findAlternativeVideo(topic, usedUrls);
+            if (alternative) {
+                validatedVideos.push({
+                    ...video,
+                    url: alternative.url,
+                    title: alternative.title || video.title,
+                    description: alternative.description || video.description
+                });
+                usedUrls.push(alternative.url);
+            }
+        }
+    }
+    
+    return {
+        ...resources,
+        videos: validatedVideos
+    };
+}
+
 // Gemini API functions
 async function callGeminiAPI(prompt) {
     try {
@@ -170,14 +298,23 @@ async function generateResources(career, stepTitle, stepDescription) {
         const response = await callGeminiAPI(prompt);
         const jsonMatch = response.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-            return JSON.parse(jsonMatch[0]);
+            const resources = JSON.parse(jsonMatch[0]);
+            console.log('Generated resources, now validating YouTube links...');
+            
+            // Validate and replace invalid YouTube links
+            const validatedResources = await validateAndReplaceInvalidLinks(resources);
+            console.log('YouTube link validation completed');
+            
+            return validatedResources;
         } else {
             throw new Error('Could not parse JSON from response');
         }
     } catch (error) {
         console.error('Error generating resources:', error);
         // Fallback to default resources if API fails
-        return getDefaultResources(career, stepTitle);
+        const defaultResources = getDefaultResources(career, stepTitle);
+        console.log('Using default resources, validating links...');
+        return await validateAndReplaceInvalidLinks(defaultResources);
     }
 }
 
@@ -830,7 +967,13 @@ async function generateAndDisplayResources() {
         loadingEl.style.display = 'block';
         contentEl.style.display = 'none';
         
-        // Generate resources using Gemini API
+        // Update loading message to show validation process
+        const loadingText = loadingEl.querySelector('p');
+        if (loadingText) {
+            loadingText.textContent = 'Generating resources and validating YouTube links...';
+        }
+        
+        // Generate resources using Gemini API (includes validation)
         const resources = await generateResources(currentUser.selectedCareer, currentStep.title, currentStep.description);
         
         // Display resources in each tab
@@ -845,14 +988,15 @@ async function generateAndDisplayResources() {
         
     } catch (error) {
         console.error('Error generating resources:', error);
-        showMessage('resourcesMessage', 'Error generating resources. Using default resources.', 'error');
+        showMessage('resourcesMessage', 'Error generating resources. Using validated default content.', 'error');
         
-        // Use default resources as fallback
+        // Use default resources as fallback with validation
         const defaultResources = getDefaultResources(currentUser.selectedCareer, currentStep.title);
-        displayVideos(defaultResources.videos);
-        displayDocuments(defaultResources.documents);
-        displayProjects(defaultResources.projects);
-        displayPractice(defaultResources.practice);
+        const validatedDefaults = await validateAndReplaceInvalidLinks(defaultResources);
+        displayVideos(validatedDefaults.videos || []);
+        displayDocuments(validatedDefaults.documents || []);
+        displayProjects(validatedDefaults.projects || []);
+        displayPractice(validatedDefaults.practice || []);
         
         loadingEl.style.display = 'none';
         contentEl.style.display = 'block';
