@@ -69,6 +69,8 @@ function logout() {
 // Gemini API functions
 async function callGeminiAPI(prompt) {
     try {
+        console.log('Calling Gemini API with key:', GEMINI_API_KEY ? 'Key present' : 'No key');
+        
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
@@ -83,11 +85,16 @@ async function callGeminiAPI(prompt) {
             })
         });
 
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('API Error Response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
 
         const data = await response.json();
+        console.log('API Response data:', data);
         
         if (data.candidates && data.candidates[0] && data.candidates[0].content) {
             return data.candidates[0].content.parts[0].text;
@@ -255,68 +262,166 @@ function getDefaultCareerSteps(career) {
 }
 
 function getDefaultResources(career, stepTitle) {
+    const resourcesByStep = {
+        "HTML & CSS Fundamentals": {
+            videos: [
+                {
+                    title: "HTML & CSS Full Course - Beginner to Pro",
+                    description: "Complete HTML and CSS tutorial from basics to advanced",
+                    url: "https://youtube.com/playlist?list=PL0Zuz27SZ-6Mx9fd9elt80G1bPcySmWit",
+                    difficulty: "beginner",
+                    duration: "6 hours"
+                },
+                {
+                    title: "CSS Flexbox and Grid Tutorial",
+                    description: "Master modern CSS layout techniques",
+                    url: "https://youtube.com/playlist?list=PL4cUxeGkcC9i3FXJSUfmsNOx8E7u6UuhG",
+                    difficulty: "intermediate",
+                    duration: "3 hours"
+                }
+            ]
+        },
+        "JavaScript Basics": {
+            videos: [
+                {
+                    title: "JavaScript Tutorial for Beginners",
+                    description: "Complete JavaScript course covering fundamentals",
+                    url: "https://youtube.com/playlist?list=PL0Zuz27SZ-6Oi6xNXie2gXMyNHjYgb9FQ",
+                    difficulty: "beginner",
+                    duration: "8 hours"
+                },
+                {
+                    title: "Modern JavaScript ES6+ Tutorial",
+                    description: "Learn modern JavaScript features and syntax",
+                    url: "https://youtube.com/playlist?list=PL0Zuz27SZ-6P4dQUsoDatjEGpmBpcOW8V",
+                    difficulty: "intermediate",
+                    duration: "4 hours"
+                }
+            ]
+        },
+        "Frontend Framework - React": {
+            videos: [
+                {
+                    title: "React JS Full Course for Beginners",
+                    description: "Complete React tutorial from scratch",
+                    url: "https://youtube.com/playlist?list=PL0Zuz27SZ-6OlAwitnFUubtE93DO-l0vi",
+                    difficulty: "intermediate",
+                    duration: "10 hours"
+                },
+                {
+                    title: "React Hooks Tutorial",
+                    description: "Master React Hooks with practical examples",
+                    url: "https://youtube.com/playlist?list=PL4cUxeGkcC9hNokByJilPg5g9m2APUePI",
+                    difficulty: "intermediate",
+                    duration: "3 hours"
+                }
+            ]
+        },
+        "Python Programming Fundamentals": {
+            videos: [
+                {
+                    title: "Python for Beginners - Full Course",
+                    description: "Complete Python tutorial for beginners",
+                    url: "https://youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU",
+                    difficulty: "beginner",
+                    duration: "12 hours"
+                },
+                {
+                    title: "Python Object Oriented Programming",
+                    description: "Learn OOP concepts in Python",
+                    url: "https://youtube.com/playlist?list=PL-osiE80TeTsqhIuOqKhwlXsIBIdSeYtc",
+                    difficulty: "intermediate",
+                    duration: "6 hours"
+                }
+            ]
+        }
+    };
+
+    const defaultVideos = resourcesByStep[stepTitle]?.videos || [
+        {
+            title: `${stepTitle} - Tutorial`,
+            description: "Learn the fundamentals and practical applications",
+            url: "https://youtube.com/results?search_query=" + encodeURIComponent(stepTitle + " tutorial"),
+            difficulty: "beginner",
+            duration: "2-4 hours"
+        }
+    ];
+
     return {
-        videos: [
-            {
-                title: `${stepTitle} - Complete Tutorial`,
-                description: "Comprehensive video tutorial covering all essential concepts",
-                url: "https://youtube.com/playlist?list=example",
-                difficulty: "beginner",
-                duration: "3-4 hours"
-            },
-            {
-                title: `${stepTitle} - Practical Examples`,
-                description: "Hands-on examples and coding demonstrations",
-                url: "https://youtube.com/watch?v=example",
-                difficulty: "intermediate",
-                duration: "2 hours"
-            }
-        ],
+        videos: defaultVideos,
         documents: [
             {
-                title: `Official ${stepTitle} Documentation`,
-                description: "Official documentation and best practices",
-                url: "https://developer.mozilla.org/docs",
-                difficulty: "intermediate",
+                title: "MDN Web Docs - HTML",
+                description: "Official Mozilla documentation for HTML",
+                url: "https://developer.mozilla.org/en-US/docs/Web/HTML",
+                difficulty: "beginner",
                 duration: "2-3 hours"
             },
             {
-                title: `${stepTitle} - Beginner Guide`,
-                description: "Step-by-step beginner-friendly guide",
-                url: "https://example.com/guide",
+                title: "CSS-Tricks - Complete Guide",
+                description: "Comprehensive CSS guides and tutorials",
+                url: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/",
+                difficulty: "intermediate",
+                duration: "1-2 hours"
+            },
+            {
+                title: "W3Schools - Web Development",
+                description: "Interactive tutorials and references",
+                url: "https://www.w3schools.com/html/",
                 difficulty: "beginner",
-                duration: "1 hour"
+                duration: "3-4 hours"
             }
         ],
         projects: [
             {
-                title: `Build a ${stepTitle} Project`,
-                description: "Create a practical project to apply your learning",
-                url: "#",
-                difficulty: "intermediate",
+                title: "Personal Portfolio Website",
+                description: "Build your own responsive portfolio using HTML, CSS, and JavaScript",
+                url: "https://github.com/topics/portfolio-website",
+                difficulty: "beginner",
                 duration: "1-2 weeks"
             },
             {
-                title: `${stepTitle} Mini Challenge`,
-                description: "Quick coding challenge to test your skills",
-                url: "#",
-                difficulty: "beginner",
-                duration: "2-3 days"
+                title: "Landing Page Design",
+                description: "Create a modern, responsive landing page",
+                url: "https://github.com/topics/landing-page",
+                difficulty: "intermediate",
+                duration: "3-5 days"
+            },
+            {
+                title: "CSS Animation Challenge",
+                description: "Build interactive animations and transitions",
+                url: "https://github.com/topics/css-animation",
+                difficulty: "intermediate",
+                duration: "1 week"
             }
         ],
         practice: [
             {
-                title: "Codecademy",
-                description: "Interactive coding exercises and projects",
-                url: "https://codecademy.com",
+                title: "freeCodeCamp",
+                description: "Free coding bootcamp with certification",
+                url: "https://www.freecodecamp.org/learn/2022/responsive-web-design/",
                 difficulty: "beginner",
                 duration: "Ongoing"
             },
             {
-                title: "freeCodeCamp",
-                description: "Free coding bootcamp with practical projects",
-                url: "https://freecodecamp.org",
+                title: "Codecademy",
+                description: "Interactive HTML & CSS courses",
+                url: "https://www.codecademy.com/learn/learn-html",
                 difficulty: "beginner",
+                duration: "Ongoing"
+            },
+            {
+                title: "CSS Battle",
+                description: "CSS coding challenges and competitions",
+                url: "https://cssbattle.dev/",
+                difficulty: "intermediate",
+                duration: "Ongoing"
+            },
+            {
+                title: "Frontend Mentor",
+                description: "Real-world frontend challenges",
+                url: "https://www.frontendmentor.io/challenges",
+                difficulty: "intermediate",
                 duration: "Ongoing"
             }
         ]
