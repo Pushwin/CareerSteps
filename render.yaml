@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: careersteps
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+    routes:
+      - type: rewrite
+        source: /
+        destination: /loginpageandsighup.html
+      - type: rewrite
+        source: /careerchoose
+        destination: /careerchoose.html
+      - type: rewrite
+        source: /steps
+        destination: /steps.html
+      - type: rewrite
+        source: /resources
+        destination: /resources.html
